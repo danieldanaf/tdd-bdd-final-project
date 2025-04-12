@@ -223,3 +223,41 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(by_price_product.count(), count)
         for product in by_price_product:
             self.assertEqual(product.price, product_price)
+
+    def test_find_product_by_string_price(self):
+        """ Tests the find product by price method for invalid decimal values """
+        product = ProductFactory()
+        product.price = 2.5
+        product.create()
+
+        products = Product.find_by_price('2.5')
+        self.assertEqual(products[0].price, 2.5)
+
+    def test_deserialize_available_invalid_type(self):
+        """ Tests the deserialize method for invalid boolean values """
+        data = {
+            "name": "Product",
+            "description": "A product",
+            "price": "20.5",
+            "available": "yes",
+            "category": "ELECTRONICS",
+        }
+
+        product = ProductFactory()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
+    def test_deserialize_missing_key(self):
+        """ Tests the deserialize method for missing keys """
+        data = {
+            "name": "Product",
+            "description": "A product",
+            "price": "20.5",
+            "available": True,
+            "category": "ELECTRONICS",
+            "disabled": "Yes"
+        }
+
+        product = ProductFactory()
+        self.assertRaises(DataValidationError, product.deserialize, data)
+
+
